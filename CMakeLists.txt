@@ -8,7 +8,7 @@ project(
         LANGUAGES CXX
 )
 
-OPTION(THREADX_ADAPTER  "Enable ThreadX adapter."  ON )
+OPTION(THREADX_ADAPTER "Enable ThreadX adapter." ON)
 
 add_library(EmbLog INTERFACE)
 add_library(EmbLog::EmbLog ALIAS EmbLog)
@@ -24,15 +24,13 @@ target_include_directories(
         "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
 )
 if (THREADX_ADAPTER)
-target_include_directories(
-        EmbLog
-        INTERFACE
-        "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/adapter/include>"
-)
+    target_include_directories(
+            EmbLog
+            INTERFACE
+            "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/adapter/include>"
+    )
 
 endif ()
-
-OPTION(THREADX_ADAPTER  "Enable ThreadX adapter."  ON )
 
 target_compile_features(EmbLog INTERFACE cxx_std_20)
 
