@@ -19,30 +19,38 @@
 */
 
 
-namespace FormatEmbLog {
-    class ThreadXRttAdapter;
+namespace FormatEmbLog
+{
+class ThreadXRttAdapter;
 
 
-    template<>
-    struct GlobalLoggerConfig<void> {
-        using ActiveAdapter = ThreadXRttAdapter;
-    };
+template <>
+struct GlobalLoggerConfig<void>
+{
+    using ActiveAdapter = ThreadXRttAdapter;
+};
 
 
-    inline constexpr bool IsLittleEndian() {
+inline constexpr bool IsLittleEndian()
+{
 #if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-        return false;
+    return false;
 #else
-        return true;
+    return true;
 #endif
-    }
+}
 
-    template<typename T>
-    inline constexpr T FixEndian(T val) {
-        if constexpr (IsLittleEndian() || sizeof(T) == 1) return val;
-        else if constexpr (sizeof(T) == 2) return __builtin_bswap16(static_cast<uint16_t>(val));
-        else if constexpr (sizeof(T) == 4) return __builtin_bswap32(static_cast<uint32_t>(val));
-        else if constexpr (sizeof(T) == 8) return __builtin_bswap64(static_cast<uint64_t>(val));
+template <typename T>
+inline constexpr T FixEndian(T val)
+{
+    if constexpr (IsLittleEndian() || sizeof(T) == 1)
         return val;
-    }
+    else if constexpr (sizeof(T) == 2)
+        return __builtin_bswap16(static_cast<uint16_t>(val));
+    else if constexpr (sizeof(T) == 4)
+        return __builtin_bswap32(static_cast<uint32_t>(val));
+    else if constexpr (sizeof(T) == 8)
+        return __builtin_bswap64(static_cast<uint64_t>(val));
+    return val;
+}
 }

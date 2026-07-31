@@ -9,21 +9,26 @@
 
 #if defined(ENABLE_EMBLOG) && (ENABLE_EMBLOG == 1)
 
-namespace FormatEmbLog {
-    template<LoggerAdapter Adapter>
-    struct StaticLoggerChannel {
-        static inline AsyncManager<Adapter> &instance() {
-            static AsyncManager<Adapter> instance_{};
-            return instance_;
-        }
-    };
-
-    template<bool UseCounter, bool UseTimestamp, uint32_t HashID, typename T = void, typename... Args>
-    inline void CheckedLogEmit(Level lvl, ::emio::format_string<Args...> fmt_str, Args &&... args) {
-        using ChosenAdapter = typename GlobalLoggerConfig<T>::ActiveAdapter;
-        StaticLoggerChannel<ChosenAdapter>::instance().template PackAndEmit<UseCounter, UseTimestamp, HashID>(
-            lvl, std::forward<Args>(args)...);
+namespace FormatEmbLog
+{
+template <LoggerAdapter Adapter>
+struct StaticLoggerChannel
+{
+    static inline AsyncManager<Adapter> & instance()
+    {
+        static AsyncManager<Adapter> instance_{};
+        return instance_;
     }
+};
+
+template <bool UseCounter, bool UseTimestamp, uint32_t HashID, typename T = void, typename... Args>
+inline void CheckedLogEmit(Level lvl, ::emio::format_string<Args...> fmt_str, Args &&... args)
+{
+    using ChosenAdapter = typename GlobalLoggerConfig<T>::ActiveAdapter;
+    StaticLoggerChannel<ChosenAdapter>::instance().template PackAndEmit<UseCounter, UseTimestamp, HashID>(
+        lvl,
+        std::forward<Args>(args)...);
+}
 }
 
 #    define emb_log(level,counter,timestamp,fmt, ...) \
