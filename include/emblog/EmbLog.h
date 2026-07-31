@@ -23,21 +23,14 @@ namespace FormatEmbLog {
         using ChosenAdapter = typename GlobalLoggerConfig<T>::ActiveAdapter;
         StaticLoggerChannel<ChosenAdapter>::instance().template PackAndEmit<UseCounter, UseTimestamp, HashID>(
             lvl, std::forward<Args>(args)...);
-        // PackAndEmit<UseCounter, UseTimestamp, HashID>(lvl, std::forward<Args>(args)...);
     }
 }
 
-
 #    define emb_log(level,counter,timestamp,fmt, ...) \
         do { \
-            static constexpr auto _m = []() { \
-                __VA_OPT__( \
-                    return FormatEmbLog::ELFMetadata{FormatEmbLog::CalculateGenericHash20<decltype(__VA_ARGS__)>(fmt) | (1 << 20), fmt};) \
-                return FormatEmbLog::ELFMetadata{FormatEmbLog::CalculateGenericHash20(fmt) | (static_cast<uint8_t>(level)<< 20), fmt}; \
-            }(); \
-            FormatEmbLog::CheckedLogEmit<counter, timestamp, _m.composite_header>(level, fmt __VA_OPT__(, )##__VA_ARGS__); \
+        constexpr uint32_t hash_id = FormatEmbLog::CalculateGenericHash20(fmt)| (static_cast<uint32_t>(level) << 20); \
+            FormatEmbLog::CheckedLogEmit<counter, timestamp, hash_id>(level, fmt __VA_OPT__(, )##__VA_ARGS__); \
         } while (0)
-
 
 #    define log_debug(fmt, ...) emb_log(FormatEmbLog::Level::DEBUG,false,false,fmt,##__VA_ARGS__)
 #    define log_debug_ts(fmt, ...) emb_log(FormatEmbLog::Level::INFO,false,true,fmt,##__VA_ARGS__)

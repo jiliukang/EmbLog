@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <source_location>
 #include <string_view>
 #include <type_traits>
 #include <vector>
@@ -26,8 +27,7 @@ inline constexpr bool is_vector_v = is_vector<std::decay_t<T> >::value;
 
 namespace FormatEmbLog
 {
-template <typename... Args>
-inline constexpr uint32_t CalculateGenericHash20(const std::string_view str)
+inline constexpr uint32_t CalculateGenericHash20(const std::string_view str,const std::source_location location = std::source_location::current())
 {
     uint32_t hash = 0x811C9DC5;
     for (const char c : str)
@@ -35,8 +35,17 @@ inline constexpr uint32_t CalculateGenericHash20(const std::string_view str)
         hash ^= static_cast<uint8_t>(c);
         hash *= 0x01000193;
     }
-    const uint32_t type_salt = (sizeof...(Args) << 16) | (0 + ... + sizeof(Args));
-    hash ^= type_salt;
+    const std::string_view file_name {location.file_name()};
+    const auto line_num =  location.line();
+    for (const char c : file_name) {
+        hash ^= static_cast<uint8_t>(c);
+        hash *= 0x01000193;
+    }
+
+    hash ^= static_cast<uint8_t>(line_num & 0xFF); hash *= 0x01000193;
+    hash ^= static_cast<uint8_t>((line_num >> 8) & 0xFF); hash *= 0x01000193;
+    hash ^= static_cast<uint8_t>((line_num >> 16) & 0xFF); hash *= 0x01000193;
+    hash ^= static_cast<uint8_t>((line_num >> 24) & 0xFF); hash *= 0x01000193;
 
     return hash & 0xFFFFF;
 }
